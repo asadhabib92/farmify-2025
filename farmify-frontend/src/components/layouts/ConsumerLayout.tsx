@@ -55,12 +55,12 @@ const ConsumerLayout = ({ children }: { children: React.ReactNode }) => {
         </nav>
 
         <div className="absolute bottom-4 left-4 right-4">
-          <Link to="/">
+          {/* <Link to="/">
             <Button variant="ghost" className="w-full flex items-center gap-2">
               <LogOut size={18} />
               <span>Back to Homepage</span>
             </Button>
-          </Link>
+          </Link> */}
         </div>
       </aside>
 
