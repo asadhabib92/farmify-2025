@@ -1,8 +1,8 @@
 
-const express = require('express');
+import express from 'express'
 const router = express.Router();
-const { getReports, getReport, createReport, updateReport, addComment, resolveReport } = require('../controllers/report.controller');
-const { protect, authorize } = require('../middleware/auth.middleware');
+import { getReports, getReport, createReport, updateReport, addComment, resolveReport } from '../controllers/report.controller.js'
+import { protect, authorize } from '../middleware/auth.middleware.js'
 
 // All routes need authentication
 router.use(protect);
@@ -17,4 +17,4 @@ router.put('/:id', authorize('admin'), updateReport);
 router.post('/:id/comments', authorize('admin'), addComment);
 router.put('/:id/resolve', authorize('admin'), resolveReport);
 
-module.exports = router;
+export default router;

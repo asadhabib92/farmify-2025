@@ -1,5 +1,4 @@
-
-const mongoose = require('mongoose');
+import mongoose from 'mongoose'
 
 const FarmerSchema = new mongoose.Schema({
   user: {
@@ -82,4 +81,5 @@ const FarmerSchema = new mongoose.Schema({
   timestamps: true
 });
 
-module.exports = mongoose.model('Farmer', FarmerSchema);
+const Farmer = mongoose.model('Farmer', FarmerSchema);
+export default Farmer;

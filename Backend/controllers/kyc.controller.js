@@ -1,6 +1,6 @@
-const kycModel = require("../models/kyc.model")
+import kycModel from "../models/kyc.model.js"
 
-exports.kycVerification = async (req, res) => {
+const kycVerification = async (req, res) => {
     console.log(req.body);
     let aadhaarImage = `${req.file.aadhaarImage}`
     let panImage = `${req.file.panImage}`
@@ -34,3 +34,5 @@ exports.kycVerification = async (req, res) => {
         res.json({ success: false, message: "Error" })
     }
 }
+
+export { kycVerification } 

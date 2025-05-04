@@ -1,5 +1,5 @@
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose'
 
 const PaymentSchema = new mongoose.Schema({
   paymentId: {
@@ -55,25 +55,27 @@ const PaymentSchema = new mongoose.Schema({
 });
 
 // Generate payment ID before saving
-PaymentSchema.pre('save', async function(next) {
+PaymentSchema.pre('save', async function (next) {
   if (!this.paymentId) {
     const date = new Date();
     const year = date.getFullYear().toString().substr(-2);
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
-    
+
     const latestPayment = await this.constructor.findOne().sort('-createdAt');
     let sequence = '0001';
-    
+
     if (latestPayment && latestPayment.paymentId) {
       const lastSequence = parseInt(latestPayment.paymentId.substr(-4));
       sequence = (lastSequence + 1).toString().padStart(4, '0');
     }
-    
+
     this.paymentId = `PAY-${year}${month}${day}-${sequence}`;
   }
-  
+
   next();
 });
 
-module.exports = mongoose.model('Payment', PaymentSchema);
+const Payment = mongoose.model('Payment', PaymentSchema);
+
+export default Payment;

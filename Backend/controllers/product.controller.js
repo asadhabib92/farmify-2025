@@ -1,41 +1,41 @@
 
-const Product = require('../models/product.model');
-const Farmer = require('../models/farmer.model');
+import Product from '../models/product.model.js'
+import Farmer from '../models/farmer.model.js'
 
 // @desc    Get all products
 // @route   GET /api/products
 // @access  Public
-exports.getProducts = async (req, res) => {
+const getProducts = async (req, res) => {
   try {
-    const { 
-      category, 
-      subcategory, 
-      farmer, 
-      search, 
-      minPrice, 
-      maxPrice, 
+    const {
+      category,
+      subcategory,
+      farmer,
+      search,
+      minPrice,
+      maxPrice,
       organic,
       inStock,
       sort,
-      page = 1, 
-      limit = 12 
+      page = 1,
+      limit = 12
     } = req.query;
-    
+
     // Build query
     const query = {};
-    
+
     if (category) {
       query.category = category;
     }
-    
+
     if (subcategory) {
       query.subcategory = subcategory;
     }
-    
+
     if (farmer) {
       query.farmer = farmer;
     }
-    
+
     if (minPrice && maxPrice) {
       query.price = { $gte: minPrice, $lte: maxPrice };
     } else if (minPrice) {
@@ -43,22 +43,22 @@ exports.getProducts = async (req, res) => {
     } else if (maxPrice) {
       query.price = { $lte: maxPrice };
     }
-    
+
     if (organic) {
       query.organic = organic === 'true';
     }
-    
+
     if (inStock) {
       query.inStock = inStock === 'true';
     }
-    
+
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
         { description: { $regex: search, $options: 'i' } }
       ];
     }
-    
+
     // Sorting
     let sortOptions = { createdAt: -1 }; // Default sort by newest
     if (sort) {
@@ -74,10 +74,10 @@ exports.getProducts = async (req, res) => {
           break;
       }
     }
-    
+
     // Pagination
     const skip = (page - 1) * limit;
-    
+
     const products = await Product.find(query)
       .populate({
         path: 'farmer',
@@ -90,9 +90,9 @@ exports.getProducts = async (req, res) => {
       .skip(skip)
       .limit(parseInt(limit))
       .sort(sortOptions);
-    
+
     const total = await Product.countDocuments(query);
-    
+
     res.status(200).json({
       success: true,
       count: products.length,
@@ -115,7 +115,7 @@ exports.getProducts = async (req, res) => {
 // @desc    Get single product
 // @route   GET /api/products/:id
 // @access  Public
-exports.getProduct = async (req, res) => {
+const getProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id)
       .populate({
@@ -133,14 +133,14 @@ exports.getProduct = async (req, res) => {
           select: 'name profileImage'
         }
       });
-    
+
     if (!product) {
       return res.status(404).json({
         success: false,
         message: 'Product not found'
       });
     }
-    
+
     res.status(200).json({
       success: true,
       data: product
@@ -156,18 +156,18 @@ exports.getProduct = async (req, res) => {
 // @desc    Create new product
 // @route   POST /api/products
 // @access  Private/Farmer
-exports.createProduct = async (req, res) => {
+const createProduct = async (req, res) => {
   try {
     // Find the farmer profile for the current user
     const farmer = await Farmer.findOne({ user: req.user.id });
-    
+
     if (!farmer) {
       return res.status(404).json({
         success: false,
         message: 'Farmer profile not found for this user'
       });
     }
-    
+
     // Check if farmer is verified
     if (!farmer.isVerified) {
       return res.status(403).json({
@@ -175,15 +175,15 @@ exports.createProduct = async (req, res) => {
         message: 'Your farmer account must be verified before adding products'
       });
     }
-    
+
     // Create product
     const productData = {
       ...req.body,
       farmer: farmer._id
     };
-    
+
     const product = await Product.create(productData);
-    
+
     res.status(201).json({
       success: true,
       data: product
@@ -199,27 +199,27 @@ exports.createProduct = async (req, res) => {
 // @desc    Update product
 // @route   PUT /api/products/:id
 // @access  Private/Farmer
-exports.updateProduct = async (req, res) => {
+const updateProduct = async (req, res) => {
   try {
     let product = await Product.findById(req.params.id);
-    
+
     if (!product) {
       return res.status(404).json({
         success: false,
         message: 'Product not found'
       });
     }
-    
+
     // Find the farmer profile for the current user
     const farmer = await Farmer.findOne({ user: req.user.id });
-    
+
     if (!farmer) {
       return res.status(404).json({
         success: false,
         message: 'Farmer profile not found for this user'
       });
     }
-    
+
     // Check if user is the product owner or an admin
     if (product.farmer.toString() !== farmer._id.toString() && req.user.role !== 'admin') {
       return res.status(403).json({
@@ -227,7 +227,7 @@ exports.updateProduct = async (req, res) => {
         message: 'Not authorized to update this product'
       });
     }
-    
+
     product = await Product.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -236,7 +236,7 @@ exports.updateProduct = async (req, res) => {
         runValidators: true
       }
     );
-    
+
     res.status(200).json({
       success: true,
       data: product
@@ -252,27 +252,27 @@ exports.updateProduct = async (req, res) => {
 // @desc    Delete product
 // @route   DELETE /api/products/:id
 // @access  Private/Farmer
-exports.deleteProduct = async (req, res) => {
+const deleteProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
-    
+
     if (!product) {
       return res.status(404).json({
         success: false,
         message: 'Product not found'
       });
     }
-    
+
     // Find the farmer profile for the current user
     const farmer = await Farmer.findOne({ user: req.user.id });
-    
+
     if (!farmer) {
       return res.status(404).json({
         success: false,
         message: 'Farmer profile not found for this user'
       });
     }
-    
+
     // Check if user is the product owner or an admin
     if (product.farmer.toString() !== farmer._id.toString() && req.user.role !== 'admin') {
       return res.status(403).json({
@@ -280,9 +280,9 @@ exports.deleteProduct = async (req, res) => {
         message: 'Not authorized to delete this product'
       });
     }
-    
+
     await product.deleteOne();
-    
+
     res.status(200).json({
       success: true,
       data: {}
@@ -294,3 +294,5 @@ exports.deleteProduct = async (req, res) => {
     });
   }
 };
+
+export { getProduct, getProducts, updateProduct, deleteProduct, createProduct }

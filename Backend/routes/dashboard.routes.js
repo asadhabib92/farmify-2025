@@ -1,12 +1,12 @@
 
-const express = require('express');
+import express from 'express'
 const router = express.Router();
-const { 
-  getAdminStats, 
-  getFarmerStats, 
-  getConsumerStats 
-} = require('../controllers/dashboard.controller');
-const { protect, authorize } = require('../middleware/auth.middleware');
+import {
+  getAdminStats,
+  getFarmerStats,
+  getConsumerStats
+} from '../controllers/dashboard.controller.js'
+import { protect, authorize } from '../middleware/auth.middleware.js'
 
 // All routes need authentication
 router.use(protect);
@@ -16,4 +16,4 @@ router.get('/admin', authorize('admin'), getAdminStats);
 router.get('/farmer', authorize('farmer'), getFarmerStats);
 router.get('/consumer', authorize('consumer'), getConsumerStats);
 
-module.exports = router;
+export default router;

@@ -1,5 +1,4 @@
-
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 const OrderItemSchema = new mongoose.Schema({
   product: {
@@ -118,4 +117,6 @@ OrderSchema.pre('save', async function (next) {
   next();
 });
 
-module.exports = mongoose.model('Order', OrderSchema);
+const orderModel = mongoose.model('Order', OrderSchema);
+
+export default orderModel;

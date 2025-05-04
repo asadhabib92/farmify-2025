@@ -1,8 +1,8 @@
 
-const express = require('express');
+import express from 'express'
 const router = express.Router();
-const { getUsers, getUser, updateUser, deleteUser, updateKycStatus } = require('../controllers/user.controller');
-const { protect, authorize } = require('../middleware/auth.middleware');
+import { getUsers, getUser, updateUser, deleteUser, updateKycStatus } from '../controllers/user.controller.js'
+import { protect, authorize } from '../middleware/auth.middleware.js'
 
 // All routes need authentication
 router.use(protect);
@@ -14,4 +14,4 @@ router.put('/:id', authorize('admin'), updateUser);
 router.delete('/:id', authorize('admin'), deleteUser);
 router.put('/:id/kyc', authorize('admin'), updateKycStatus);
 
-module.exports = router;
+export default router;

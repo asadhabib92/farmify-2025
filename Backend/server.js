@@ -1,24 +1,27 @@
-
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const mongoose = require('mongoose');
-const path = require('path');
+import 'dotenv/config.js'
+import express from 'express'
+import cors from 'cors'
+import mongoose from 'mongoose'
+import path from 'path'
+import { fileURLToPath } from 'url';
 
 // Import routes
-const authRoutes = require('./routes/auth.routes');
-const userRoutes = require('./routes/user.routes');
-const farmerRoutes = require('./routes/farmer.routes');
-const productRoutes = require('./routes/product.routes');
-const orderRoutes = require('./routes/order.routes');
-const reportRoutes = require('./routes/report.routes');
-const paymentRoutes = require('./routes/payment.routes');
-const reviewRoutes = require('./routes/review.routes');
-const dashboardRoutes = require('./routes/dashboard.routes');
-const { default: cartRouter } = require('./routes/cartRoute.js');
-const { default: foodRouter } = require('./routes/food.routes.js');
-const { default: farmerRouter } = require('./routes/farmerRoutes.js');
-const { default: adminRoutes } = require('./routes/admin.routes.js');
+import authRoutes from './routes/auth.routes.js'
+import userRoutes from './routes/user.routes.js'
+import farmerRoutes from './routes/farmer.routes.js'
+import productRoutes from './routes/product.routes.js'
+import orderRoutes from './routes/order.routes.js'
+import reportRoutes from './routes/report.routes.js'
+import paymentRoutes from './routes/payment.routes.js'
+import reviewRoutes from './routes/review.routes.js'
+import dashboardRoutes from './routes/dashboard.routes.js'
+import cartRouter from './routes/cartRoute.js'
+import foodRouter from './routes/food.routes.js'
+import farmerRouter from './routes/farmerRoutes.js'
+import adminRoutes from './routes/admin.routes.js'
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Initialize Express app
 const app = express();

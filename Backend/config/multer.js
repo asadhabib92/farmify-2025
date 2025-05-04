@@ -1,13 +1,13 @@
 
-const multer = require('multer');
-const path = require('path');
+import multer from 'multer'
+import path from 'path'
 
 // Define storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     // Choose destination based on file type
     let dest = 'uploads/';
-    
+
     if (file.fieldname === 'profileImage') {
       dest += 'profiles/';
     } else if (file.fieldname === 'productImages') {
@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
     } else {
       dest += 'misc/';
     }
-    
+
     cb(null, path.join(__dirname, '../', dest));
   },
   filename: (req, file, cb) => {
@@ -51,4 +51,4 @@ const upload = multer({
   }
 });
 
-module.exports = upload;
+export { upload }

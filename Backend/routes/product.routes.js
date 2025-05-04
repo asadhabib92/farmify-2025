@@ -1,8 +1,8 @@
 
-const express = require('express');
+import express from 'express'
 const router = express.Router();
-const { getProducts, getProduct, createProduct, updateProduct, deleteProduct } = require('../controllers/product.controller');
-const { protect, authorize } = require('../middleware/auth.middleware');
+import { getProducts, getProduct, createProduct, updateProduct, deleteProduct } from '../controllers/product.controller.js'
+import { protect, authorize } from '../middleware/auth.middleware.js'
 
 // Public routes
 router.get('/', getProducts);
@@ -13,4 +13,4 @@ router.post('/', protect, authorize('farmer'), createProduct);
 router.put('/:id', protect, authorize('farmer', 'admin'), updateProduct);
 router.delete('/:id', protect, authorize('farmer', 'admin'), deleteProduct);
 
-module.exports = router;
+export default router;

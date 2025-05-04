@@ -1,39 +1,39 @@
 
-const Report = require('../models/report.model');
-const Farmer = require('../models/farmer.model');
-const mongoose = require('mongoose');
+import Report from '../models/report.model.js'
+import Farmer from '../models/farmer.model.js'
+import mongoose from 'mongoose'
 
 // @desc    Get all reports
 // @route   GET /api/reports
 // @access  Private/Admin
-exports.getReports = async (req, res) => {
+const getReports = async (req, res) => {
   try {
-    const { 
-      status, 
-      type, 
-      priority, 
-      page = 1, 
-      limit = 10 
+    const {
+      status,
+      type,
+      priority,
+      page = 1,
+      limit = 10
     } = req.query;
-    
+
     // Build query
     const query = {};
-    
+
     if (status) {
       query.status = status;
     }
-    
+
     if (type) {
       query.type = type;
     }
-    
+
     if (priority) {
       query.priority = priority;
     }
-    
+
     // Pagination
     const skip = (page - 1) * limit;
-    
+
     const reports = await Report.find(query)
       .populate({
         path: 'reporter',
@@ -46,9 +46,9 @@ exports.getReports = async (req, res) => {
       .skip(skip)
       .limit(parseInt(limit))
       .sort({ createdAt: -1 });
-    
+
     const total = await Report.countDocuments(query);
-    
+
     res.status(200).json({
       success: true,
       count: reports.length,
@@ -71,7 +71,7 @@ exports.getReports = async (req, res) => {
 // @desc    Get single report
 // @route   GET /api/reports/:id
 // @access  Private/Admin
-exports.getReport = async (req, res) => {
+const getReport = async (req, res) => {
   try {
     const report = await Report.findById(req.params.id)
       .populate({
@@ -86,14 +86,14 @@ exports.getReport = async (req, res) => {
         path: 'comments.user',
         select: 'name email'
       });
-    
+
     if (!report) {
       return res.status(404).json({
         success: false,
         message: 'Report not found'
       });
     }
-    
+
     res.status(200).json({
       success: true,
       data: report
@@ -109,17 +109,17 @@ exports.getReport = async (req, res) => {
 // @desc    Create new report
 // @route   POST /api/reports
 // @access  Private
-exports.createReport = async (req, res) => {
+const createReport = async (req, res) => {
   try {
-    const { 
-      title, 
-      description, 
-      reportedEntity, 
+    const {
+      title,
+      description,
+      reportedEntity,
       reportedEntityName,
-      type, 
-      priority 
+      type,
+      priority
     } = req.body;
-    
+
     // Create report
     const report = await Report.create({
       title,
@@ -131,7 +131,7 @@ exports.createReport = async (req, res) => {
       priority: priority || 'Medium',
       status: 'Open'
     });
-    
+
     res.status(201).json({
       success: true,
       data: report
@@ -147,26 +147,26 @@ exports.createReport = async (req, res) => {
 // @desc    Update report status and priority
 // @route   PUT /api/reports/:id
 // @access  Private/Admin
-exports.updateReport = async (req, res) => {
+const updateReport = async (req, res) => {
   try {
     const { status, priority, assignedTo } = req.body;
-    
+
     const report = await Report.findById(req.params.id);
-    
+
     if (!report) {
       return res.status(404).json({
         success: false,
         message: 'Report not found'
       });
     }
-    
+
     // Update fields
     if (status) report.status = status;
     if (priority) report.priority = priority;
     if (assignedTo) report.assignedTo = assignedTo;
-    
+
     await report.save();
-    
+
     res.status(200).json({
       success: true,
       data: report
@@ -182,27 +182,27 @@ exports.updateReport = async (req, res) => {
 // @desc    Add comment to report
 // @route   POST /api/reports/:id/comments
 // @access  Private/Admin
-exports.addComment = async (req, res) => {
+const addComment = async (req, res) => {
   try {
     const { text } = req.body;
-    
+
     const report = await Report.findById(req.params.id);
-    
+
     if (!report) {
       return res.status(404).json({
         success: false,
         message: 'Report not found'
       });
     }
-    
+
     // Add comment
     report.comments.push({
       text,
       user: req.user.id
     });
-    
+
     await report.save();
-    
+
     res.status(200).json({
       success: true,
       data: report
@@ -218,19 +218,19 @@ exports.addComment = async (req, res) => {
 // @desc    Resolve report
 // @route   PUT /api/reports/:id/resolve
 // @access  Private/Admin
-exports.resolveReport = async (req, res) => {
+const resolveReport = async (req, res) => {
   try {
     const { resolutionText } = req.body;
-    
+
     const report = await Report.findById(req.params.id);
-    
+
     if (!report) {
       return res.status(404).json({
         success: false,
         message: 'Report not found'
       });
     }
-    
+
     // Update report
     report.status = 'Resolved';
     report.resolution = {
@@ -238,9 +238,9 @@ exports.resolveReport = async (req, res) => {
       resolvedBy: req.user.id,
       resolvedAt: new Date()
     };
-    
+
     await report.save();
-    
+
     res.status(200).json({
       success: true,
       data: report
@@ -252,3 +252,5 @@ exports.resolveReport = async (req, res) => {
     });
   }
 };
+
+export { getReport, getReports, createReport, updateReport, addComment, resolveReport }

@@ -1,12 +1,12 @@
 
-const User = require('../models/user.model');
-const ErrorResponse = require('../utils/errorResponse');
-const jwt = require('jsonwebtoken')
+import User from '../models/user.model.js'
+import ErrorResponse from '../utils/errorResponse.js'
+import jwt from 'jsonwebtoken'
 
 // @desc    Register user
 // @route   POST /api/auth/register
 // @access  Public
-exports.register = async (req, res, next) => {
+const register = async (req, res, next) => {
   try {
     const { firstName, lastName, email, password, role, phone, farmName } = req.body;
     console.log(req.body)
@@ -59,7 +59,7 @@ exports.register = async (req, res, next) => {
 // @desc    Login user
 // @route   POST /api/auth/login
 // @access  Public
-exports.login = async (req, res, next) => {
+const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -114,7 +114,7 @@ exports.login = async (req, res, next) => {
 // @desc    Get current logged in user
 // @route   GET /api/auth/me
 // @access  Private
-exports.getMe = async (req, res, next) => {
+const getMe = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id);
 
@@ -133,7 +133,7 @@ exports.getMe = async (req, res, next) => {
 // @desc    Update user profile
 // @route   PUT /api/auth/updateprofile
 // @access  Private
-exports.updateProfile = async (req, res, next) => {
+const updateProfile = async (req, res, next) => {
   try {
     const fieldsToUpdate = {
       name: req.body.name,
@@ -170,7 +170,7 @@ exports.updateProfile = async (req, res, next) => {
 // @desc    Update password
 // @route   PUT /api/auth/updatepassword
 // @access  Private
-exports.updatePassword = async (req, res, next) => {
+const updatePassword = async (req, res, next) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
@@ -202,3 +202,5 @@ exports.updatePassword = async (req, res, next) => {
     });
   }
 };
+
+export { register, login, getMe, updateProfile, updatePassword };

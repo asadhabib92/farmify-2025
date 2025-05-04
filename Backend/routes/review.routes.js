@@ -1,15 +1,15 @@
 
-const express = require('express');
+import express from 'express'
 const router = express.Router();
-const { 
-  getReviews, 
-  getReview, 
-  createReview, 
-  updateReview, 
-  deleteReview, 
-  addFarmerResponse 
-} = require('../controllers/review.controller');
-const { protect, authorize } = require('../middleware/auth.middleware');
+import {
+  getReviews,
+  getReview,
+  createReview,
+  updateReview,
+  deleteReview,
+  addFarmerResponse
+} from '../controllers/review.controller.js'
+import { protect, authorize } from '../middleware/auth.middleware.js'
 
 // Public routes
 router.get('/', getReviews);
@@ -23,4 +23,4 @@ router.delete('/:id', protect, authorize('consumer', 'admin'), deleteReview);
 // Farmer routes
 router.post('/:id/response', protect, authorize('farmer'), addFarmerResponse);
 
-module.exports = router;
+export default router;

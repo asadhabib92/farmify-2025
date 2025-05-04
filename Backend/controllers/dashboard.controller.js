@@ -1,16 +1,16 @@
 
-const Order = require('../models/order.model');
-const Product = require('../models/product.model');
-const User = require('../models/user.model');
-const Payment = require('../models/payment.model');
-const Farmer = require('../models/farmer.model');
-const Report = require('../models/report.model');
-const mongoose = require('mongoose');
+import Order from '../models/order.model.js'
+import Product from '../models/product.model.js'
+import User from '../models/user.model.js'
+import Payment from '../models/payment.model.js'
+import Farmer from '../models/farmer.model.js'
+import Report from '../models/report.model.js'
+import mongoose from 'mongoose'
 
 // @desc    Get admin dashboard stats
 // @route   GET /api/dashboard/admin
 // @access  Private/Admin
-exports.getAdminStats = async (req, res) => {
+const getAdminStats = async (req, res) => {
   try {
     // Total users count by role
     const userStats = await User.aggregate([
@@ -21,19 +21,19 @@ exports.getAdminStats = async (req, res) => {
         }
       }
     ]);
-    
+
     const userCounts = {
       total: 0,
       consumer: 0,
       farmer: 0,
       admin: 0
     };
-    
+
     userStats.forEach(stat => {
       userCounts[stat._id] = stat.count;
       userCounts.total += stat.count;
     });
-    
+
     // Farmer application stats
     const farmerStats = await Farmer.aggregate([
       {
@@ -43,25 +43,25 @@ exports.getAdminStats = async (req, res) => {
         }
       }
     ]);
-    
+
     const farmerCounts = {
       total: userCounts.farmer,
       pending: 0,
       approved: 0,
       rejected: 0
     };
-    
+
     farmerStats.forEach(stat => {
       farmerCounts[stat._id] = stat.count;
     });
-    
+
     // Product stats
     const productCount = await Product.countDocuments();
     const outOfStockCount = await Product.countDocuments({ inStock: false });
-    
+
     // Order stats
     const orderCount = await Order.countDocuments();
-    
+
     const orderStats = await Order.aggregate([
       {
         $group: {
@@ -70,7 +70,7 @@ exports.getAdminStats = async (req, res) => {
         }
       }
     ]);
-    
+
     const orderCounts = {
       total: orderCount,
       placed: 0,
@@ -80,17 +80,17 @@ exports.getAdminStats = async (req, res) => {
       delivered: 0,
       cancelled: 0
     };
-    
+
     orderStats.forEach(stat => {
       if (orderCounts.hasOwnProperty(stat._id)) {
         orderCounts[stat._id] = stat.count;
       }
     });
-    
+
     // Revenue stats
     const currentDate = new Date();
     const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    
+
     const monthlyRevenue = await Order.aggregate([
       {
         $match: {
@@ -105,7 +105,7 @@ exports.getAdminStats = async (req, res) => {
         }
       }
     ]);
-    
+
     const totalRevenue = await Order.aggregate([
       {
         $match: {
@@ -119,7 +119,7 @@ exports.getAdminStats = async (req, res) => {
         }
       }
     ]);
-    
+
     // Report stats
     const reportStats = await Report.aggregate([
       {
@@ -129,7 +129,7 @@ exports.getAdminStats = async (req, res) => {
         }
       }
     ]);
-    
+
     const reportCounts = {
       total: await Report.countDocuments(),
       Open: 0,
@@ -137,11 +137,11 @@ exports.getAdminStats = async (req, res) => {
       Resolved: 0,
       Closed: 0
     };
-    
+
     reportStats.forEach(stat => {
       reportCounts[stat._id] = stat.count;
     });
-    
+
     // Get charts data - monthly orders
     const last6Months = [];
     for (let i = 5; i >= 0; i--) {
@@ -149,25 +149,25 @@ exports.getAdminStats = async (req, res) => {
       month.setMonth(month.getMonth() - i);
       last6Months.push(month);
     }
-    
+
     const monthlyOrdersData = await Promise.all(last6Months.map(async (month) => {
       const startOfMonth = new Date(month.getFullYear(), month.getMonth(), 1);
       const endOfMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0);
-      
+
       const count = await Order.countDocuments({
         createdAt: {
           $gte: startOfMonth,
           $lte: endOfMonth
         }
       });
-      
+
       return {
         month: month.toLocaleString('default', { month: 'short' }),
         year: month.getFullYear().toString().substr(-2),
         count
       };
     }));
-    
+
     res.status(200).json({
       success: true,
       data: {
@@ -199,7 +199,7 @@ exports.getAdminStats = async (req, res) => {
 // @desc    Get farmer dashboard stats
 // @route   GET /api/dashboard/farmer
 // @access  Private/Farmer
-exports.getFarmerStats = async (req, res) => {
+const getFarmerStats = async (req, res) => {
   try {
     // Find farmer profile
     const farmer = await Farmer.findOne({ user: req.user.id });
@@ -209,14 +209,14 @@ exports.getFarmerStats = async (req, res) => {
         message: 'Farmer profile not found'
       });
     }
-    
+
     // Product stats
     const productCount = await Product.countDocuments({ farmer: farmer._id });
-    const outOfStockCount = await Product.countDocuments({ 
+    const outOfStockCount = await Product.countDocuments({
       farmer: farmer._id,
       inStock: false
     });
-    
+
     // Top selling products
     const topProducts = await Order.aggregate([
       { $unwind: '$items' },
@@ -245,7 +245,7 @@ exports.getFarmerStats = async (req, res) => {
       { $sort: { totalSold: -1 } },
       { $limit: 5 }
     ]);
-    
+
     // Order stats
     const orderStats = await Order.aggregate([
       { $unwind: '$items' },
@@ -270,7 +270,7 @@ exports.getFarmerStats = async (req, res) => {
         }
       }
     ]);
-    
+
     const orderCounts = {
       total: 0,
       placed: 0,
@@ -280,18 +280,18 @@ exports.getFarmerStats = async (req, res) => {
       delivered: 0,
       cancelled: 0
     };
-    
+
     orderStats.forEach(stat => {
       if (orderCounts.hasOwnProperty(stat._id)) {
         orderCounts[stat._id] = stat.count;
         orderCounts.total += stat.count;
       }
     });
-    
+
     // Revenue stats
     const currentDate = new Date();
     const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    
+
     const monthlyRevenue = await Order.aggregate([
       { $unwind: '$items' },
       {
@@ -317,7 +317,7 @@ exports.getFarmerStats = async (req, res) => {
         }
       }
     ]);
-    
+
     const totalRevenue = await Order.aggregate([
       { $unwind: '$items' },
       {
@@ -342,7 +342,7 @@ exports.getFarmerStats = async (req, res) => {
         }
       }
     ]);
-    
+
     // Get charts data - monthly sales
     const last6Months = [];
     for (let i = 5; i >= 0; i--) {
@@ -350,11 +350,11 @@ exports.getFarmerStats = async (req, res) => {
       month.setMonth(month.getMonth() - i);
       last6Months.push(month);
     }
-    
+
     const monthlySalesData = await Promise.all(last6Months.map(async (month) => {
       const startOfMonth = new Date(month.getFullYear(), month.getMonth(), 1);
       const endOfMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0);
-      
+
       const result = await Order.aggregate([
         { $unwind: '$items' },
         {
@@ -384,7 +384,7 @@ exports.getFarmerStats = async (req, res) => {
           }
         }
       ]);
-      
+
       return {
         month: month.toLocaleString('default', { month: 'short' }),
         year: month.getFullYear().toString().substr(-2),
@@ -392,7 +392,7 @@ exports.getFarmerStats = async (req, res) => {
         orders: result.length > 0 ? result[0].orders : 0
       };
     }));
-    
+
     res.status(200).json({
       success: true,
       data: {
@@ -427,11 +427,11 @@ exports.getFarmerStats = async (req, res) => {
 // @desc    Get consumer dashboard stats
 // @route   GET /api/dashboard/consumer
 // @access  Private/Consumer
-exports.getConsumerStats = async (req, res) => {
+const getConsumerStats = async (req, res) => {
   try {
     // Order stats
     const orderCount = await Order.countDocuments({ consumer: req.user.id });
-    
+
     const orderStats = await Order.aggregate([
       {
         $match: {
@@ -445,7 +445,7 @@ exports.getConsumerStats = async (req, res) => {
         }
       }
     ]);
-    
+
     const orderCounts = {
       total: orderCount,
       placed: 0,
@@ -455,13 +455,13 @@ exports.getConsumerStats = async (req, res) => {
       delivered: 0,
       cancelled: 0
     };
-    
+
     orderStats.forEach(stat => {
       if (orderCounts.hasOwnProperty(stat._id)) {
         orderCounts[stat._id] = stat.count;
       }
     });
-    
+
     // Recent orders
     const recentOrders = await Order.find({ consumer: req.user.id })
       .populate({
@@ -470,7 +470,7 @@ exports.getConsumerStats = async (req, res) => {
       })
       .sort({ createdAt: -1 })
       .limit(5);
-    
+
     // Total spent
     const totalSpent = await Order.aggregate([
       {
@@ -486,7 +486,7 @@ exports.getConsumerStats = async (req, res) => {
         }
       }
     ]);
-    
+
     // Farmers purchased from
     const farmersPurchasedFrom = await Order.aggregate([
       {
@@ -530,7 +530,7 @@ exports.getConsumerStats = async (req, res) => {
       { $sort: { orderCount: -1 } },
       { $limit: 5 }
     ]);
-    
+
     res.status(200).json({
       success: true,
       data: {
@@ -547,3 +547,5 @@ exports.getConsumerStats = async (req, res) => {
     });
   }
 };
+
+export { getAdminStats, getFarmerStats, getConsumerStats }

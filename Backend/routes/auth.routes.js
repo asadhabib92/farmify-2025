@@ -1,10 +1,10 @@
 
-const express = require('express');
+import express from 'express'
 const router = express.Router();
-const { register, login, getMe, updateProfile, updatePassword } = require('../controllers/auth.controller');
-const { protect } = require('../middleware/auth.middleware');
-const { kycVerification } = require('../controllers/kyc.controller');
-const multer = require("multer")
+import { register, login, getMe, updateProfile, updatePassword } from '../controllers/auth.controller.js'
+import { protect } from '../middleware/auth.middleware.js'
+import { kycVerification } from '../controllers/kyc.controller.js'
+import multer from "multer"
 
 // image storage engine
 
@@ -28,4 +28,4 @@ router.get('/me', protect, getMe);
 router.put('/updateprofile', protect, updateProfile);
 router.put('/updatepassword', protect, updatePassword);
 
-module.exports = router;
+export default router;

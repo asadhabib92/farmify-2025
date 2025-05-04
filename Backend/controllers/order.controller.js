@@ -1,13 +1,13 @@
 
-const Order = require('../models/order.model');
-const Product = require('../models/product.model');
-const Farmer = require('../models/farmer.model');
-const foodModel = require('../models/food.model')
+import Order from '../models/order.model.js'
+import Product from '../models/product.model.js'
+import Farmer from '../models/farmer.model.js'
+import foodModel from '../models/food.model.js'
 
 // @desc    Create new order
 // @route   POST /api/orders
 // @access  Private/Consumer
-exports.createOrder = async (req, res) => {
+const createOrder = async (req, res) => {
   console.log(req.body)
   try {
     const {
@@ -126,7 +126,7 @@ exports.createOrder = async (req, res) => {
 // @desc    Get all orders
 // @route   GET /api/orders
 // @access  Private
-exports.getOrders = async (req, res) => {
+const getOrders = async (req, res) => {
   try {
     const {
       status,
@@ -214,7 +214,7 @@ exports.getOrders = async (req, res) => {
 // @desc    Get single order
 // @route   GET /api/orders/:id
 // @access  Private
-exports.getOrder = async (req, res) => {
+const getOrder = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
       .populate({
@@ -275,7 +275,7 @@ exports.getOrder = async (req, res) => {
 // @desc    Update order status
 // @route   PUT /api/orders/:id/status
 // @access  Private/Admin-Farmer
-exports.updateOrderStatus = async (req, res) => {
+const updateOrderStatus = async (req, res) => {
   try {
     const { orderStatus } = req.body;
 
@@ -339,3 +339,5 @@ exports.updateOrderStatus = async (req, res) => {
     });
   }
 };
+
+export { createOrder, getOrder, updateOrderStatus, getOrders }

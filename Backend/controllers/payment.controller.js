@@ -1,33 +1,33 @@
 
-const Payment = require('../models/payment.model');
-const Order = require('../models/order.model');
-const Farmer = require('../models/farmer.model');
-const User = require('../models/user.model');
+import Payment from '../models/payment.model.js'
+import Order from '../models/order.model.js'
+import Farmer from '../models/farmer.model.js'
+import User from '../models/user.model.js'
 
 // @desc    Get all payments
 // @route   GET /api/payments
 // @access  Private
-exports.getPayments = async (req, res) => {
+const getPayments = async (req, res) => {
   try {
-    const { 
-      type, 
-      method, 
-      status, 
-      fromDate, 
-      toDate, 
-      page = 1, 
-      limit = 10 
+    const {
+      type,
+      method,
+      status,
+      fromDate,
+      toDate,
+      page = 1,
+      limit = 10
     } = req.query;
-    
+
     // Build query based on user role
     const query = {};
-    
+
     if (req.user.role === 'farmer') {
       // Find farmer profile
       const farmer = await Farmer.findOne({ user: req.user.id });
       if (farmer) {
         query.$or = [
-          { recipient: req.user.id }, 
+          { recipient: req.user.id },
           { sender: req.user.id }
         ];
       } else {
@@ -39,26 +39,26 @@ exports.getPayments = async (req, res) => {
     } else if (req.user.role === 'consumer') {
       // Consumers can only see their own payments
       query.$or = [
-        { recipient: req.user.id }, 
+        { recipient: req.user.id },
         { sender: req.user.id }
       ];
     }
-    
+
     // Filter by type
     if (type) {
       query.type = type;
     }
-    
+
     // Filter by method
     if (method) {
       query.method = method;
     }
-    
+
     // Filter by status
     if (status) {
       query.status = status;
     }
-    
+
     // Filter by date range
     if (fromDate && toDate) {
       query.createdAt = {
@@ -66,10 +66,10 @@ exports.getPayments = async (req, res) => {
         $lte: new Date(toDate)
       };
     }
-    
+
     // Pagination
     const skip = (page - 1) * limit;
-    
+
     const payments = await Payment.find(query)
       .populate({
         path: 'order',
@@ -86,9 +86,9 @@ exports.getPayments = async (req, res) => {
       .skip(skip)
       .limit(parseInt(limit))
       .sort({ createdAt: -1 });
-    
+
     const total = await Payment.countDocuments(query);
-    
+
     res.status(200).json({
       success: true,
       count: payments.length,
@@ -111,7 +111,7 @@ exports.getPayments = async (req, res) => {
 // @desc    Get single payment
 // @route   GET /api/payments/:id
 // @access  Private
-exports.getPayment = async (req, res) => {
+const getPayment = async (req, res) => {
   try {
     const payment = await Payment.findById(req.params.id)
       .populate({
@@ -126,18 +126,18 @@ exports.getPayment = async (req, res) => {
         path: 'sender',
         select: 'name email'
       });
-    
+
     if (!payment) {
       return res.status(404).json({
         success: false,
         message: 'Payment not found'
       });
     }
-    
+
     // Check if user is authorized to view this payment
     if (req.user.role !== 'admin') {
       if (
-        (payment.recipient && payment.recipient._id.toString() !== req.user.id) && 
+        (payment.recipient && payment.recipient._id.toString() !== req.user.id) &&
         (payment.sender && payment.sender._id.toString() !== req.user.id)
       ) {
         return res.status(403).json({
@@ -146,7 +146,7 @@ exports.getPayment = async (req, res) => {
         });
       }
     }
-    
+
     res.status(200).json({
       success: true,
       data: payment
@@ -162,19 +162,19 @@ exports.getPayment = async (req, res) => {
 // @desc    Process payment for order
 // @route   POST /api/payments/process-order
 // @access  Private/Consumer
-exports.processOrderPayment = async (req, res) => {
+const processOrderPayment = async (req, res) => {
   try {
     const { orderId, paymentMethod, transactionDetails } = req.body;
-    
+
     const order = await Order.findById(orderId);
-    
+
     if (!order) {
       return res.status(404).json({
         success: false,
         message: 'Order not found'
       });
     }
-    
+
     // Verify that the consumer owns this order
     if (order.consumer.toString() !== req.user.id) {
       return res.status(403).json({
@@ -182,7 +182,7 @@ exports.processOrderPayment = async (req, res) => {
         message: 'Not authorized to process payment for this order'
       });
     }
-    
+
     // Create payment record
     const payment = await Payment.create({
       order: order._id,
@@ -195,16 +195,16 @@ exports.processOrderPayment = async (req, res) => {
       transactionDetails,
       description: `Payment for order ${order.orderNumber}`
     });
-    
+
     // Update order payment status
     order.paymentStatus = 'paid';
     order.paymentDetails = {
       transactionId: payment.paymentId,
       paymentDate: new Date()
     };
-    
+
     await order.save();
-    
+
     res.status(201).json({
       success: true,
       data: payment
@@ -220,10 +220,10 @@ exports.processOrderPayment = async (req, res) => {
 // @desc    Process payout to farmer
 // @route   POST /api/payments/payout
 // @access  Private/Admin
-exports.processPayout = async (req, res) => {
+const processPayout = async (req, res) => {
   try {
     const { farmerId, amount, description } = req.body;
-    
+
     // Validate farmer exists
     const farmer = await Farmer.findById(farmerId).populate('user');
     if (!farmer) {
@@ -232,7 +232,7 @@ exports.processPayout = async (req, res) => {
         message: 'Farmer not found'
       });
     }
-    
+
     // Create payment record
     const payment = await Payment.create({
       amount,
@@ -246,7 +246,7 @@ exports.processPayout = async (req, res) => {
         paymentGateway: 'Bank Transfer'
       }
     });
-    
+
     res.status(201).json({
       success: true,
       data: payment
@@ -262,10 +262,10 @@ exports.processPayout = async (req, res) => {
 // @desc    Request payout (for farmers)
 // @route   POST /api/payments/request-payout
 // @access  Private/Farmer
-exports.requestPayout = async (req, res) => {
+const requestPayout = async (req, res) => {
   try {
     const { amount } = req.body;
-    
+
     // Find farmer profile
     const farmer = await Farmer.findOne({ user: req.user.id });
     if (!farmer) {
@@ -274,7 +274,7 @@ exports.requestPayout = async (req, res) => {
         message: 'Farmer profile not found'
       });
     }
-    
+
     // Validate minimum payout amount (example: 500)
     if (amount < 500) {
       return res.status(400).json({
@@ -282,7 +282,7 @@ exports.requestPayout = async (req, res) => {
         message: 'Minimum payout amount is ₹500'
       });
     }
-    
+
     // Create payment request
     const payment = await Payment.create({
       amount,
@@ -293,7 +293,7 @@ exports.requestPayout = async (req, res) => {
       recipient: req.user.id,
       description: `Payout request from ${farmer.farmName}`
     });
-    
+
     res.status(201).json({
       success: true,
       data: payment,
@@ -310,10 +310,10 @@ exports.requestPayout = async (req, res) => {
 // @desc    Update payment status
 // @route   PUT /api/payments/:id/status
 // @access  Private/Admin
-exports.updatePaymentStatus = async (req, res) => {
+const updatePaymentStatus = async (req, res) => {
   try {
     const { status } = req.body;
-    
+
     // Validate status
     if (!['Pending', 'Completed', 'Failed'].includes(status)) {
       return res.status(400).json({
@@ -321,31 +321,31 @@ exports.updatePaymentStatus = async (req, res) => {
         message: 'Invalid payment status'
       });
     }
-    
+
     const payment = await Payment.findById(req.params.id);
-    
+
     if (!payment) {
       return res.status(404).json({
         success: false,
         message: 'Payment not found'
       });
     }
-    
+
     // Update payment status
     payment.status = status;
-    
+
     // If this is an order payment, update order payment status too
     if (payment.order) {
       const order = await Order.findById(payment.order);
       if (order) {
-        order.paymentStatus = status === 'Completed' ? 'paid' : 
-                             status === 'Failed' ? 'failed' : 'pending';
+        order.paymentStatus = status === 'Completed' ? 'paid' :
+          status === 'Failed' ? 'failed' : 'pending';
         await order.save();
       }
     }
-    
+
     await payment.save();
-    
+
     res.status(200).json({
       success: true,
       data: payment
@@ -357,3 +357,5 @@ exports.updatePaymentStatus = async (req, res) => {
     });
   }
 };
+
+export { getPayment, getPayments, processOrderPayment, processPayout, requestPayout, updatePaymentStatus }
