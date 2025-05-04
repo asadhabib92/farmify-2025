@@ -15,7 +15,7 @@ import {
 import {
   Slider
 } from "@/components/ui/slider";
-import { Search, ShoppingCart, Heart, Filter } from 'lucide-react';
+import { Search, ShoppingCart, Heart, Filter, Loader2, LoaderIcon } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { StoreContext } from '@/Context/StoreContext';
 import { toast } from 'react-toastify';
@@ -26,7 +26,7 @@ const ProductBrowse = () => {
   const queryParams = new URLSearchParams(location.search);
   const farmerParam = queryParams.get('farmer');
 
-  const { cart, setCart, addToCart, food_list } = useContext(StoreContext);
+  const { loading, cart, setCart, addToCart, food_list } = useContext(StoreContext);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
@@ -266,55 +266,56 @@ const ProductBrowse = () => {
           </Card>
         )}
 
-        <div>
-          {filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredProducts.map((product) => (
-                <Card key={product.id} className="overflow-hidden">
-                  <div className="h-40 bg-gray-100 relative">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-20 h-20 rounded-full bg-farmify-green bg-opacity-20 flex items-center justify-center text-farmify-green">
-                        {product.image}
+        {loading ? <div className=' flex justify-center items-center'><Loader2 className='animate-spin h-80 w-80' /></div> :
+          <div>
+            {filteredProducts.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredProducts.map((product) => (
+                  <Card key={product.id} className="overflow-hidden">
+                    <div className="h-40 bg-gray-100 relative">
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className=" h-32 w-full bg-cover bg-center flex items-center justify-center text-farmify-green" style={{ backgroundImage: `url(${product.image})` }}>
+
+                        </div>
                       </div>
+                      <button className="absolute top-2 right-2 p-1 bg-white rounded-full">
+                        <Heart className="h-4 w-4 text-gray-400" />
+                      </button>
                     </div>
-                    <button className="absolute top-2 right-2 p-1 bg-white rounded-full">
-                      <Heart className="h-4 w-4 text-gray-400" />
-                    </button>
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-bold">{product.name}</h3>
-                    <div className="flex justify-between items-center mt-1">
-                      <div className="text-sm text-gray-500">{product.farmer}</div>
-                      <div className="flex items-center text-xs">
-                        <div className="text-yellow-400 mr-1">★</div>
-                        <span>{product.rating}</span>
+                    <CardContent className="p-4">
+                      <h3 className="font-bold">{product.name}</h3>
+                      <div className="flex justify-between items-center mt-1">
+                        <div className="text-sm text-gray-500">{product.farmer}</div>
+                        <div className="flex items-center text-xs">
+                          <div className="text-yellow-400 mr-1">★</div>
+                          <span>{product.rating}</span>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex justify-between items-center mt-4">
-                      <div className="font-bold">₹{product.price}/{product.unit}</div>
-                      <Button
-                        size="sm"
-                        className="bg-farmify-green hover:bg-farmify-green-dark"
-                        onClick={() => { addToCart(product.id); toast.success("Added To Cart") }}
-                      >
-                        Add to Cart
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-10">
-              <div className="mb-4">
-                <ShoppingCart className="h-12 w-12 mx-auto text-gray-400" />
+                      <div className="flex justify-between items-center mt-4">
+                        <div className="font-bold">₹{product.price}/{product.unit}</div>
+                        <Button
+                          size="sm"
+                          className="bg-farmify-green hover:bg-farmify-green-dark"
+                          onClick={() => { addToCart(product.id); toast.success("Added To Cart") }}
+                        >
+                          Add to Cart
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-              <h3 className="text-lg font-semibold mb-2">No products found</h3>
-              <p className="text-gray-500 mb-4">Try adjusting your filters or search criteria</p>
-              <Button variant="outline" onClick={resetFilters}>Reset All Filters</Button>
-            </div>
-          )}
-        </div>
+            ) : (
+              <div className="text-center py-10">
+                <div className="mb-4">
+                  <ShoppingCart className="h-12 w-12 mx-auto text-gray-400" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">No products found</h3>
+                <p className="text-gray-500 mb-4">Try adjusting your filters or search criteria</p>
+                <Button variant="outline" onClick={resetFilters}>Reset All Filters</Button>
+              </div>
+            )}
+          </div>}
       </div>
     </ConsumerLayout>
   );

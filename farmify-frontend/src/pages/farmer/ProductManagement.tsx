@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import FarmerLayout from '@/components/layouts/FarmerLayout';
 import {
   Card,
@@ -34,10 +34,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { Search, Plus, Edit, Trash2, ImagePlus } from 'lucide-react';
+import { Search, Plus, Edit, Trash2, ImagePlus, Loader2 } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { StoreContext } from '@/Context/StoreContext';
 
 const categories = ["Vegetables", "Fruits", "Grains", "Dairy & Honey", "Herbs & Spices"];
 
@@ -46,6 +47,7 @@ const ProductManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const { loading, setLoading } = useContext(StoreContext)
 
   const [formData, setFormData] = useState({
     name: "",
@@ -119,6 +121,7 @@ const ProductManagement = () => {
   };
 
   const handleAddProduct = async () => {
+    setLoading(true);
     const farmerName = localStorage.getItem("farmName");
     const price = parseFloat(formData.price);
     const stock = parseFloat(formData.stock);
@@ -175,6 +178,7 @@ const ProductManagement = () => {
       console.error(err);
       toast.error("Failed to save product");
     }
+    setLoading(false);
   };
 
   const handleEditProduct = async (product: any) => {

@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { LogIn } from 'lucide-react';
+import { Loader2, LogIn } from 'lucide-react';
 import { StoreContext } from '@/Context/StoreContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -20,7 +20,7 @@ import { toast } from 'react-toastify';
 const backendURL: string = import.meta.env.VITE_BACKEND_URL;
 
 const Login = () => {
-  const { setLoading, setToken, setUserName, setFarmName } = useContext(StoreContext);
+  const { loading, setLoading, setToken, setUserName, setFarmName } = useContext(StoreContext);
   const [formData, setFormData] = useState({
     email: "",
     password: ""
@@ -91,7 +91,7 @@ const Login = () => {
             </CardContent>
             <CardFooter className="flex-col space-y-4">
               <Button type="submit" className="w-full bg-farmify-green hover:bg-farmify-green-dark">
-                <LogIn className="mr-2 h-4 w-4" /> Sign In
+                {loading && <Loader2 className=' animate-spin' />}<LogIn className="mr-2 h-4 w-4" /> Sign In
               </Button>
               <div className="text-center text-sm">
                 Don't have an account?{" "}

@@ -41,7 +41,7 @@ import Navbar from "./components/Navbar";
 import StoreContextProvider from "./Context/StoreContext";
 import { ToastContainer } from "react-toastify";
 import { useRef } from "react";
-import Support from "./pages/Support";
+// import Support from "./pages/Support";
 
 const queryClient = new QueryClient();
 
@@ -90,7 +90,7 @@ const App = () => {
 
               {/* Public Routes */}
               <Route path="/farmers" element={<FarmersList />} />
-              <Route path="/support" element={<Support />} />
+              {/* <Route path="/support" element={<Support />} /> */}
 
               {/* Catch-all route */}
               <Route path="*" element={<NotFound />} />

@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { UserPlus } from 'lucide-react';
+import { Loader2, UserPlus } from 'lucide-react';
 import axios from "axios"
 import { StoreContext } from '@/Context/StoreContext';
 import { ToastContainer, toast } from 'react-toastify';
@@ -38,7 +38,7 @@ const Register = () => {
     role: "",
     farmName: "",
   });
-  const { setLoading, setToken, setUserName, setFarmName } = useContext(StoreContext);
+  const { loading, setLoading, setToken, setUserName, setFarmName } = useContext(StoreContext);
 
   useEffect(() => {
     console.log(formData)
@@ -156,8 +156,9 @@ const Register = () => {
               </div>
             </CardContent>
             <CardFooter className="flex-col space-y-4">
-              <Button type="submit" className="w-full bg-farmify-green hover:bg-farmify-green-dark">
-                <UserPlus className="mr-2 h-4 w-4" /> Create Account
+              <Button type="submit" className="w-full bg-farmify-green hover:bg-farmify-green-dark"
+                disabled={loading}>
+                {loading && <Loader2 className=' animate-spin' />} <UserPlus className="mr-2 h-4 w-4" /> Create Account
               </Button>
               <div className="text-center text-sm">
                 Already have an account?{" "}

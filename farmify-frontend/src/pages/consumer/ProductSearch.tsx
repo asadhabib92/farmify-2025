@@ -10,7 +10,8 @@ import {
   Filter,
   SlidersHorizontal,
   Star,
-  MapPin
+  MapPin,
+  Loader2
 } from 'lucide-react';
 import {
   Select,
@@ -31,7 +32,7 @@ const ProductSearch = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [priceRange, setPriceRange] = useState([0, 1000]);
   const [showFilters, setShowFilters] = useState(false);
-  const { addToCart, food_list } = useContext(StoreContext)
+  const { addToCart, food_list, loading } = useContext(StoreContext)
 
   // Filter categories
   const categories = [
@@ -162,68 +163,69 @@ const ProductSearch = () => {
           )}
 
           {/* Search results */}
-          <div className={`grid grid-cols-1 ${showFilters ? 'md:grid-cols-2 lg:grid-cols-3' : 'md:grid-cols-3 lg:grid-cols-4'} gap-6 flex-1`}>
-            {filteredProducts.length === 0 ? (
-              <div className="col-span-full text-center py-12">
-                <Search className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium">No products found</h3>
-                <p className="text-muted-foreground">Try adjusting your search or filters</p>
-              </div>
-            ) : (
-              filteredProducts.map(product => (
-                <Card key={product.id} className="overflow-hidden">
-                  <div
-                    className="h-48 bg-cover bg-center"
-                    style={{ backgroundImage: `url(${product.image})` }}
-                  ></div>
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h3 className="font-medium">{product.name}</h3>
-                        <p className="text-sm text-muted-foreground">{product.farmer}</p>
+          {loading ? <div className=' flex justify-center items-center'><Loader2 className='animate-spin h-80 w-80' /></div> :
+            <div className={`grid grid-cols-1 ${showFilters ? 'md:grid-cols-2 lg:grid-cols-3' : 'md:grid-cols-3 lg:grid-cols-4'} gap-6 flex-1`}>
+              {filteredProducts.length === 0 ? (
+                <div className="col-span-full text-center py-12">
+                  <Search className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-medium">No products found</h3>
+                  <p className="text-muted-foreground">Try adjusting your search or filters</p>
+                </div>
+              ) : (
+                filteredProducts.map(product => (
+                  <Card key={product.id} className="overflow-hidden">
+                    <div
+                      className="h-48 bg-cover bg-center"
+                      style={{ backgroundImage: `url(${product.image})` }}
+                    ></div>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h3 className="font-medium">{product.name}</h3>
+                          <p className="text-sm text-muted-foreground">{product.farmer}</p>
+                        </div>
+                        {product.organic && (
+                          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                            Organic
+                          </Badge>
+                        )}
                       </div>
-                      {product.organic && (
-                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                          Organic
-                        </Badge>
-                      )}
-                    </div>
 
-                    <div className="flex items-center mt-2 text-sm">
-                      <MapPin className="h-3 w-3 text-muted-foreground mr-1" />
-                      <span className="text-muted-foreground">{product.location}</span>
-                      <span className="text-muted-foreground mx-1">•</span>
-                      <span className="text-muted-foreground">{product.distance} km away</span>
-                    </div>
-
-                    <div className="flex items-center mt-2">
-                      <div className="flex items-center">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            className="h-3 w-3"
-                            fill={star <= Math.round(product.rating) ? "gold" : "none"}
-                            stroke={star <= Math.round(product.rating) ? "gold" : "currentColor"}
-                          />
-                        ))}
+                      <div className="flex items-center mt-2 text-sm">
+                        <MapPin className="h-3 w-3 text-muted-foreground mr-1" />
+                        <span className="text-muted-foreground">{product.location}</span>
+                        <span className="text-muted-foreground mx-1">•</span>
+                        <span className="text-muted-foreground">{product.distance} km away</span>
                       </div>
-                      <span className="text-xs text-muted-foreground ml-1">
-                        ({product.reviewCount})
-                      </span>
-                    </div>
 
-                    <div className="flex items-center justify-between mt-4">
-                      <div>
-                        <span className="font-semibold text-lg">₹{product.price}</span>
-                        <span className="text-xs text-muted-foreground">/{product.unit}</span>
+                      <div className="flex items-center mt-2">
+                        <div className="flex items-center">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              className="h-3 w-3"
+                              fill={star <= Math.round(product.rating) ? "gold" : "none"}
+                              stroke={star <= Math.round(product.rating) ? "gold" : "currentColor"}
+                            />
+                          ))}
+                        </div>
+                        <span className="text-xs text-muted-foreground ml-1">
+                          ({product.reviewCount})
+                        </span>
                       </div>
-                      <Button size="sm" onClick={() => { addToCart(product.id); toast.success("Added To Cart") }}>Add to Cart</Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </div>
+
+                      <div className="flex items-center justify-between mt-4">
+                        <div>
+                          <span className="font-semibold text-lg">₹{product.price}</span>
+                          <span className="text-xs text-muted-foreground">/{product.unit}</span>
+                        </div>
+                        <Button size="sm" onClick={() => { addToCart(product.id); toast.success("Added To Cart") }}>Add to Cart</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>}
         </div>
       </div>
     </ConsumerLayout>

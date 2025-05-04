@@ -35,9 +35,9 @@ const Navbar = () => {
             <Link to="/farmers" className="text-gray-700 hover:text-farmify-green transition-colors">
               Our Farmers
             </Link>
-            <Link to="/support" className="text-gray-700 hover:text-farmify-green transition-colors">
+            {/* <Link to="/support" className="text-gray-700 hover:text-farmify-green transition-colors">
               Support
-            </Link>
+            </Link> */}
           </div>
 
           {!token ? <div className="flex items-center gap-3">
@@ -79,12 +79,12 @@ const Navbar = () => {
               >
                 Our Farmers
               </Link>
-              <Link to="/support"
+              {/* <Link to="/support"
                 className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md"
                 onClick={toggleMobileMenu}
               >
                 Support
-              </Link>
+              </Link> */}
 
               {!token ? <div className="flex flex-col gap-2 mt-2">
                 <Link to="/login"><Button variant="outline" className="border-farmify-green text-farmify-green w-full" onClick={toggleMobileMenu}>
