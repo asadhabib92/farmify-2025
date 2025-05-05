@@ -83,6 +83,7 @@ const StoreContextProvider = ({ children }: StoreContextProviderProps) => {
             const response = await axios.post(import.meta.env.VITE_BACKEND_URL + "/api/cart/get", { userId }, { headers: { token } })
             console.log(response.data);
             setCart(response.data.cartData);
+            toast.success(response.data.message);
             console.log(cart)
         }
     }
