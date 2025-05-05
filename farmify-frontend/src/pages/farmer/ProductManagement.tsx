@@ -167,8 +167,8 @@ const ProductManagement = () => {
       if (selectedProduct) data.append("_id", selectedProduct._id);
 
       const res = await axios.post(endpoint, data);
-
-      toast.success(res.data.message);
+      console.log(res.data)
+      toast.success("Product Added");
       setIsAddProductOpen(false);
       resetForm();
 
@@ -267,8 +267,8 @@ const ProductManagement = () => {
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => { setIsAddProductOpen(false); resetForm(); }}>Cancel</Button>
-                <Button onClick={handleAddProduct}>
-                  {selectedProduct ? "Update Product" : "Add Product"}
+                <Button onClick={handleAddProduct} disabled={loading}>
+                  {loading && <Loader2 className=' animate-spin' />}{selectedProduct ? "Update Product" : "Add Product"}
                 </Button>
               </DialogFooter>
             </DialogContent>

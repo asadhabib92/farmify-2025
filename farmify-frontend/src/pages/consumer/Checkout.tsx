@@ -268,7 +268,7 @@ const Checkout = () => {
                             >
                               <Minus className="h-3 w-3" />
                             </Button>
-                            <span className="w-5 text-center">{item.quantity}</span>
+                            <span className="w-5 text-center">{cart[item.id]}</span>
                             <Button
                               variant="outline"
                               size="sm"

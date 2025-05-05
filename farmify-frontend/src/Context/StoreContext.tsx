@@ -1,6 +1,7 @@
 import axios from "axios";
 import { createContext, useState, ReactNode, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
+import { toast } from "react-toastify";
 
 
 interface StoreContextType {
@@ -57,6 +58,7 @@ const StoreContextProvider = ({ children }: StoreContextProviderProps) => {
             const userId = decoded.id;
             const response = await axios.post(backendUrl + '/api/cart/add', { productId, userId }, { headers: { token } });
             console.log(response.data)
+            toast.success(response.data.message);
             console.log(decoded)
         }
     };
@@ -68,7 +70,9 @@ const StoreContextProvider = ({ children }: StoreContextProviderProps) => {
         if (token) {
             const decoded = jwtDecode<MyJwtPayload>(token);
             const userId = decoded.id;
-            await axios.post(backendUrl + '/api/cart/remove', { productId, userId }, { headers: { token } })
+            const response = await axios.post(backendUrl + '/api/cart/remove', { productId, userId }, { headers: { token } });
+            console.log(response.data);
+            toast.success(response.data.message);
         }
     };
 
@@ -101,6 +105,7 @@ const StoreContextProvider = ({ children }: StoreContextProviderProps) => {
         const response = await axios.get(import.meta.env.VITE_BACKEND_URL + "/api/food/list");
         setFoodList(response.data.data);
         setLoading(false);
+        console.log(response.data.data)
     }
 
     useEffect(() => {
